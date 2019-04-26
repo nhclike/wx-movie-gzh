@@ -1,0 +1,15 @@
+进行微信开发者身份认证程序
+1使用node将check.js跑起来
+node check.js
+2检查本地是否跑起来
+访问http://localhost:3008?test=1
+看是否返回hello koa
+3启动Ngrok     http://www.ngrok.cc/_book/start/ngrok_windows.html
+bin中的启动工具打开并且输入
+4ea9d5163b6f881b
+
+4检查代理是否成功
+http://nhclike.free.idcfengye.com/
+是否返回 hello koa
+
+5走通前面的说明微信代理验证成功，提交微信开发者地址及token信息
