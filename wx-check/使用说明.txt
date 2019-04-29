@@ -1,15 +1,32 @@
 进行微信开发者身份认证程序
-1使用node将check.js跑起来
-node check.js
+1使用node将app.js跑起来
+    node app.js
+    或者
+    npm run dev
+
 2检查本地是否跑起来
-访问http://localhost:3008?test=1
+访问 http://localhost:3008
 看是否返回hello koa
-3启动Ngrok     http://www.ngrok.cc/_book/start/ngrok_windows.html
+
+3启动Ngrok
+http://www.ngrok.cc/_book/start/ngrok_windows.html
+
 bin中的启动工具打开并且输入
 4ea9d5163b6f881b
 
 4检查代理是否成功
-http://nhclike.free.idcfengye.com/
+访问 http://nhclike.free.idcfengye.com/
 是否返回 hello koa
 
 5走通前面的说明微信代理验证成功，提交微信开发者地址及token信息
+登录微信公众号平台---》开发者工具---》公众号平台测试账号---》（配置）接口配置信息和JS接口安全域名
+
+域名即为代理域名（微信发送消息到此地址）
+
+Token和config中config.js中配置的token保持一致
+
+
+
+获取access_token
+运行node wechat/index.js
+打印出access_token
