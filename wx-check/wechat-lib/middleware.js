@@ -31,7 +31,7 @@ module.exports=(config,reply)=>{
                 limit:'1mb',
                 encoding:ctx.charset
             });
-            console.log(data);
+            //console.log(data);
 
             const content=await util.parseXML(data);
             console.log('content');
@@ -46,7 +46,7 @@ module.exports=(config,reply)=>{
             let replyBody=ctx.body;
             let msg=ctx.weixin;
             const xml=util.tpl(replyBody,msg);
-            console.log(xml);
+            //console.log(xml);
             ctx.status=200;
             ctx.type='application/xml';
             ctx.body=xml

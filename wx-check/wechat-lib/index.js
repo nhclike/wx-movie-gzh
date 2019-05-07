@@ -8,6 +8,8 @@ module.exports=class Wechat{
         this.opts=Object.assign({},opts);
         this.appID=opts.appID;
         this.appSercret=opts.appSecret;
+        this.getAccessToken=opts.getAccessToken;
+        this.saveAccessToken=opts.saveAccessToken;
         this.fetchAccessToken();
     }
     async request(options){
@@ -23,29 +25,41 @@ module.exports=class Wechat{
     // 2. 过期则刷新
     // 3. token 入库
     async fetchAccessToken(){
-        let  data;
-        console.log(this);
-        if(this.getAccessToken){
-            data=await this.getAccessToken()
-        }
+        let  data=await this.getAccessToken()
 
-        if(this.isValidToken(data)){
+        if(!this.isValidToken(data)){
             data=await this.updateAccessToken()
         }
+
+        console.log("token数据")
+        console.log(data);
+        await this.saveAccessToken(data);
+
+        return data;
     }
     async updateAccessToken(){
         const url=api.accessToken+'&appid='+this.appID+'&secret='+this.appSercret;
         const data=await this.request({url});
-        console.log(data);
 
         const now=new Date().getTime();
         const expiresIn=now+(data.expires_in-20)*1000;
         data.expires_in=expiresIn;
 
-        console.log(data);
         return data;
     }
-    isValidToken(){
+    isValidToken(data){
+        if(!data || !data.expires_in){
+            return false;
+        }
+
+        const expiresIn=data.expires_in;
+        const now=new Date().getTime();
+        if(now<expiresIn){ //还没到达失效时间
+            return true;
+        }
+        else{
+            return false
+        }
         return true;
     }
 }
