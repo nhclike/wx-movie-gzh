@@ -15,6 +15,7 @@ const wechatCfg = {
         },
         saveAccessToken:async (data)=>{
             const res=await Token.saveAccessToken(data);
+            console.log("保存token的返回值saveAccessToken");
             console.log(res);
             return res;
         }
@@ -23,11 +24,12 @@ const wechatCfg = {
 
     (async()=>{
         const client=new Wechat(wechatCfg.wechat);
-    })()
+    })();
 
     exports.test=async()=>{
         const client=new Wechat(wechatCfg.wechat);
         const data=await client.fetchAccessToken();
+        console.log("test中获取的token数据");
         console.log(data);
-    }
+    };
 

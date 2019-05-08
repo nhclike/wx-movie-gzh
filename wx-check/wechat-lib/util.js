@@ -1,5 +1,7 @@
 const xml2js=require('xml2js');
 const template = require('./tpl');
+
+//将原始的xml数据转成js对象
 exports.parseXML= xml =>{
     return new Promise((resolve,reject)=>{
         xml2js.parseString(xml,{trim:true},(err,content)=>{
@@ -7,10 +9,11 @@ exports.parseXML= xml =>{
             else resolve(content)
         })
     })
-}
+};
 
+//将xml数据转化成的js对象，进一步格式化去掉外层的xml标识，里面的属性值由数组转成字符串
 const formatMessage= result=>{
-    let message={}
+    let message={};
 
     if(typeof message==='object'){
         const keys=Object.keys(result)
@@ -42,9 +45,9 @@ const formatMessage= result=>{
         }
     }
     return message;
-}
+};
 
-
+//定义微信消息回复的模版类型和回复的对象结构
 exports.tpl=(content,message)=>{
     let type='text';
     if(Array.isArray(content)){
@@ -64,10 +67,10 @@ exports.tpl=(content,message)=>{
         createTime:new Date().getTime(),
         toUserName:message.FromUserName,
         fromUserName:message.ToUserName
-    })
+    });
 
     return template(info);
-}
+};
 
 
 exports.formatMessage=formatMessage;

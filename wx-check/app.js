@@ -17,7 +17,7 @@ const {initSchemas,connect} =require('./app/database/init');
        //生成服务器实例
         const app=new Koa();
 
-        app.use(weChat(config.wechat,reply));
+        app.use(weChat(config,reply));
 
         app.listen(config.port);
 
