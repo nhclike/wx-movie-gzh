@@ -10,10 +10,11 @@ const {initSchemas,connect} =require('./app/database/init');
 
         initSchemas();
 
-       //测试token数据库存储
+       /*//测试token数据库存储
         const {test}=require('./wechat/index');
 
-        await test();
+        await test();*/
+
        //生成服务器实例
         const app=new Koa();
 

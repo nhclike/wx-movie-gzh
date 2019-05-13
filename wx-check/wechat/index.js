@@ -22,14 +22,17 @@ const wechatCfg = {
     }
 };
 
-    (async()=>{
-        const client=new Wechat(wechatCfg.wechat);
-    })();
+/*(async()=>{
+    const client=new Wechat(wechatCfg.wechat);
+})();*/
 
-    exports.test=async()=>{
-        const client=new Wechat(wechatCfg.wechat);
-        const data=await client.fetchAccessToken();
-        console.log("test中获取的token数据");
-        console.log(data);
-    };
+/*exports.test=async()=>{
+    const client=new Wechat(wechatCfg.wechat);
+    const data=await client.fetchAccessToken();
+    console.log("test中获取的token数据");
+    console.log(data);
+};*/
+exports.getWechat = () => new Wechat(wechatCfg.wechat);
+
+
 

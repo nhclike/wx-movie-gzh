@@ -16,7 +16,7 @@ const formatMessage= result=>{
     let message={};
 
     if(typeof message==='object'){
-        const keys=Object.keys(result)
+        const keys=Object.keys(result);
         for(let i=0;i<keys.length;i++){
             let  item=result[keys[i]];
             let key=keys[i];

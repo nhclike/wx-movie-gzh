@@ -25,7 +25,8 @@ bin中的启动工具打开并且输入
 
 Token和config中config.js中配置的token保持一致
 
-
+6启动mongodb数据库
+mongod -storageEngine mmapv1 -dbpath D:\data
 
 获取access_token
 运行node wechat/index.js
