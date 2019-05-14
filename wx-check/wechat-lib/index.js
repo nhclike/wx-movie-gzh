@@ -18,6 +18,18 @@ const api={
         count: base + 'material/get_materialcount?', //获取素材总数
         batch: base + 'material/batchget_material?'
     },
+    user: {
+        fetch: base + 'user/get?',                //获取用户列表
+        remark: base + 'user/info/updateremark?', //重命名（需要在认证的服务号上使用）
+        info: base + 'user/info?',                //获取用户基本信息（包括UnionID机制）
+        batch: base + 'user/info/batchget?'       //批量获取用户基本信息
+    },
+    menu: {
+        create: base + 'menu/create?',
+        del: base + 'menu/delete?',
+        custom: base + 'menu/addconditional?',
+        fetch: base + 'menu/get?'
+    },
 };
 
 module.exports=class Wechat{
@@ -203,5 +215,69 @@ module.exports=class Wechat{
         const url = `${api.permanent.batch}access_token=${token}`;
 
         return { method: 'POST', url, body: options }
+    }
+
+
+    // 给用户设置别名 服务号专用接口
+    remarkUser (token, openId, remark) {
+        const body = {
+            openid: openId,
+            remark
+        };
+
+        const url = api.user.remark + 'access_token=' + token;
+
+        return { method: 'POST', url, body }
+    }
+
+    // 获取粉丝列表
+    fetchUserList (token, openId) {
+        const url = api.user.fetch + 'access_token=' + token + '&next_openid=' + (openId || '');
+
+        return { url }
+    }
+
+    // 获取用户的详细信息
+    getUserInfo (token, openId, lan = 'zh_CN') {
+        const url = api.user.info + 'access_token=' + token + '&openid=' + openId + '&lang=' + lan;
+
+        return { url }
+    }
+
+    // 批量获取用户详细信息
+    fetchBatchUsers (token, openIdList) {
+        const body = {
+            user_list: openIdList
+        };
+
+        const url = api.user.batch + 'access_token=' + token;
+
+        return { method: 'POST', url, body }
+    }
+
+    // 创建菜单和自定义菜单
+    createMenu (token, menu, rules) {
+        let url = api.menu.create + 'access_token=' + token;
+
+        if (rules) {
+            url = api.menu.custom + 'access_token=' + token;
+            menu.matchrule = rules
+        }
+
+        return { method: 'POST', url, body: menu }
+    }
+
+    // 删除菜单
+    deleteMenu (token) {
+        const url = api.menu.del + 'access_token=' + token;
+
+        return { url }
+    }
+
+    // 获取菜单
+    fetchMenu (token) {
+        const url = api.menu.fetch + 'access_token=' + token;
+
+        return { url }
     }
 };

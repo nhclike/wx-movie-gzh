@@ -1,5 +1,10 @@
 const { resolve } = require('path');
-
+const help = '亲爱的，欢迎关注\n' +
+    '回复 1-3，测试文字回复\n' +
+    '回复 4，测试图文消息回复\n' +
+    '回复 5-11，测试素材上传并获取素材数据\n' +
+    '回复 12，测试用户信息数据\n'+
+    '回复 13，测试菜单数据\n';
 //回复策略
 exports.reply=async (ctx,next)=>{
     const message=ctx.weixin;
@@ -156,7 +161,7 @@ exports.reply=async (ctx,next)=>{
             reply = news
 
         }
-        else if (content === '11') {  //获取素材列表和素材总数
+        else if (content === '11') {  //测试获取素材列表和素材总数
             let counts = await client.handle('countMaterial');
             console.log(JSON.stringify(counts));
 
@@ -192,6 +197,91 @@ exports.reply=async (ctx,next)=>{
                 news: ${res[3].total_count}
               `
         }
+        else if(content==='12'){  //测试用户信息获取接口
+            let info = await client.handle('getUserInfo',message.FromUserName);
+            let userList = await client.handle('fetchUserList',message.FromUserName);
+
+            console.log("粉丝列表");
+            console.log(userList);
+
+            let openids=[{
+                "openid": message.FromUserName,
+                "lang": "zh_CN"
+            }];
+
+            let batchUserList = await client.handle('fetchUserList',openids);
+            console.log("批量获取用户详细信息");
+            console.log(batchUserList);
+
+            reply=info.nickname+"欢迎您！";
+            console.log(info);
+        }
+        else if (content === '13') {  //测试菜单
+            try {
+                let delData = await client.handle('deleteMenu');
+                console.log("删除菜单返回结果");
+                console.log(delData);
+
+                let menu = {
+                    button: [
+                        {
+                            name: '一级菜单',
+                            sub_button: [
+                                {
+                                    name: '跳转url',
+                                    type: 'view',
+                                    url:'http://www.baidu.com',
+                                    key: 'view'
+                                }, {
+                                    name: '扫码推送',
+                                    type: 'scancode_push',
+                                    key: 'scancode_push'
+                                }, {
+                                    name: '弹出拍照或者相册',
+                                    type: 'pic_photo_or_album',
+                                    key: 'pic_photo_or_album'
+                                }, {
+                                    name: '弹出系统拍照',
+                                    type: 'pic_sysphoto',
+                                    key: 'pic_sysphoto'
+                                }, {
+                                    name: '弹出微信相册',
+                                    type: 'pic_weixin',
+                                    key: 'pic_weixin'
+                                }
+                            ]
+                        },
+                        {
+                            name: '分类',
+                            sub_button: [
+                                {
+                                    name: '地理位置选择',
+                                    type: 'location_select',
+                                    key: 'location_select'
+                                }
+                            ]
+                        },
+                        {
+                            name: '其他',
+                            type: 'click',
+                            key: 'new_111'
+                        }
+                    ]
+                };
+                let createData = await client.handle('createMenu', menu);
+                console.log("创建菜单返回结果");
+                console.log(createData);
+
+                let fetchData=await client.handle('fetchMenu');
+                console.log("获取的菜单");
+                console.log(JSON.stringify(fetchData));
+
+            } catch (e) {
+                console.log(e)
+            }
+
+            reply = '菜单创建成功，请等 5 分钟，或者先取消关注，再重新关注就可以看到新菜单'
+        }
         else {
             reply='谢谢您的关注！'
         }
@@ -204,18 +294,18 @@ exports.reply=async (ctx,next)=>{
             if(message.EventKey){
                 console.log("扫描二维码进来"+message.EventKey+''+message.ticket)
             }
-            reply='欢迎关注!'+message.MsgId;
+            reply=help;
         }
         else if(message.Event === 'unsubscribe'){
             reply="无情取消关注"
         }
         //上报地理位置
-        else if(message.Event==='LOCATION'){
-            reply='您上报的位置是'+message.Latitude+'/'+message.Longitude+'/'+message.Precision
+        else if(message.Event==='location'){
+            reply='您上报的位置是'+message.Location_X+'/'+message.Location_Y+'/'+message.Label
         }
         //点击菜单
         else if(message.Event==='CLICK'){
-            reply='您点击了菜单'
+            reply='您点击了菜单'+message.EventKey;
         }
         //扫描
         else if (message.Event === 'SCAN') {
@@ -225,6 +315,24 @@ exports.reply=async (ctx,next)=>{
         //点击菜单跳转
         else if(message.Event==='VIEW'){
             reply='您点击的菜单地址为'+message.EventKey;
+        }
+        //扫码推事件的事件推送
+        else if(message.Event==='scancode_push'){
+            console.log("扫码推事件的事件推送");
+            console.log(message.ScanCodeInfo);
+            reply='您进行了扫码推事件操作';
+        }
+        //弹出系统拍照发图的事件推送
+        else if(message.Event==='pic_sysphoto'){
+            console.log("弹出系统拍照发图的事件推送,发送的图片信息");
+            console.log(message.SendPicsInfo);
+            reply='您进行了弹出系统拍照发图的操作';
+        }
+        //弹出微信相册发图器的事件推送
+        else if(message.Event==='pic_weixin'){
+            console.log("弹出微信相册发图器的事件推送,发送的图片信息");
+            console.log(message.SendPicsInfo);
+            reply='弹出微信相册发图器的事件推送';
         }
         ctx.body=reply
     }
