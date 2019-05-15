@@ -15,8 +15,20 @@ const {initSchemas,connect} =require('./app/database/init');
 
         await test();*/
 
+
+
        //生成服务器实例
         const app=new Koa();
+
+        //测试浏览器访问
+        /*app.use(function *(next) {
+                console.log(this);
+            if(this.originalUrl.indexOf('/movie')>-1){
+                    this.body='<h1>this is a test page</h1>'
+            }
+            return next;
+        });*/
+
 
         app.use(weChat(config,reply));
 

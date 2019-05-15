@@ -1,10 +1,16 @@
 const { resolve } = require('path');
+const config = require('../config/config');
+const commonMenu=require("./menu");
 const help = '亲爱的，欢迎关注\n' +
     '回复 1-3，测试文字回复\n' +
     '回复 4，测试图文消息回复\n' +
     '回复 5-11，测试素材上传并获取素材数据\n' +
     '回复 12，测试用户信息数据\n'+
-    '回复 13，测试菜单数据\n';
+    '回复 13，测试菜单数据\n'+
+    '回复 14，测试二维码生成\n'+
+    '回复 15，测试长链接转短链接\n'+
+    '回复 16，测试智能语义服务\n';
+
 //回复策略
 exports.reply=async (ctx,next)=>{
     const message=ctx.weixin;
@@ -205,15 +211,19 @@ exports.reply=async (ctx,next)=>{
             console.log(userList);
 
             let openids=[{
-                "openid": message.FromUserName,
-                "lang": "zh_CN"
-            }];
+                    "openid": message.FromUserName,
+                    "lang": "zh_CN"
+                },
+                {
+                    "openid": "oAL5G58txuYKsBMbzsOz1CCucwec",
+                    "lang": "zh_CN"
+                }];
 
-            let batchUserList = await client.handle('fetchUserList',openids);
+            let batchUserList = await client.handle('fetchBatchUsers',openids);
             console.log("批量获取用户详细信息");
             console.log(batchUserList);
 
-            reply=info.nickname+"欢迎您！";
+            reply=info.nickname+"欢迎您！  共有"+userList.total+"个关注者";
             console.log(info);
         }
         else if (content === '13') {  //测试菜单
@@ -222,53 +232,8 @@ exports.reply=async (ctx,next)=>{
                 console.log("删除菜单返回结果");
                 console.log(delData);
 
-                let menu = {
-                    button: [
-                        {
-                            name: '一级菜单',
-                            sub_button: [
-                                {
-                                    name: '跳转url',
-                                    type: 'view',
-                                    url:'http://www.baidu.com',
-                                    key: 'view'
-                                }, {
-                                    name: '扫码推送',
-                                    type: 'scancode_push',
-                                    key: 'scancode_push'
-                                }, {
-                                    name: '弹出拍照或者相册',
-                                    type: 'pic_photo_or_album',
-                                    key: 'pic_photo_or_album'
-                                }, {
-                                    name: '弹出系统拍照',
-                                    type: 'pic_sysphoto',
-                                    key: 'pic_sysphoto'
-                                }, {
-                                    name: '弹出微信相册',
-                                    type: 'pic_weixin',
-                                    key: 'pic_weixin'
-                                }
-                            ]
-                        },
-                        {
-                            name: '分类',
-                            sub_button: [
-                                {
-                                    name: '地理位置选择',
-                                    type: 'location_select',
-                                    key: 'location_select'
-                                }
-                            ]
-                        },
-                        {
-                            name: '其他',
-                            type: 'click',
-                            key: 'new_111'
-                        }
-                    ]
-                };
-                let createData = await client.handle('createMenu', menu);
+
+                let createData = await client.handle('createMenu', commonMenu);
                 console.log("创建菜单返回结果");
                 console.log(createData);
 
@@ -281,6 +246,56 @@ exports.reply=async (ctx,next)=>{
             }
 
             reply = '菜单创建成功，请等 5 分钟，或者先取消关注，再重新关注就可以看到新菜单'
+        }
+        else if (content === '14') { //测试获取二维码
+            let tempQrData = {
+              expire_seconds: 400000,
+              action_name: 'QR_SCENE',
+              action_info: {
+                scene: {
+                  scene_id: 101
+                }
+              }
+            };
+            let tempTicketData = await client.handle('createQrcode', tempQrData);
+            console.log(tempTicketData);
+            let tempQr = client.showQrcode(tempTicketData.ticket);
+            reply = tempQr;
+            // let qrData = {
+            //     action_name: 'QR_SCENE',
+            //     action_info: {
+            //         scene: {
+            //             scene_id: 99
+            //         }
+            //     }
+            // };
+            // let ticketData = await client.handle('createQrcode', qrData);
+            // console.log(ticketData);
+            // let qr = client.showQrcode(ticketData.ticket);
+            // console.log(qr);
+            //
+            // reply = qr
+        }
+        else if (content === '15') {  //测试长链接转短链接
+            let longurl = 'https://coding.imooc.com/class/178.html?a=1';
+            let shortData = await client.handle('createShortUrl', 'long2short', longurl);
+            console.log("短链接数据");
+            console.log(shortData);
+
+            reply = shortData.short_url;
+        }
+        else if(content==='16'){  //测试语意理解
+            let semanticData={
+                "query":"查一下明天从北京到上海的南航机票",
+                "city":"北京",
+                "category": "flight,hotel",
+                "appid":config.wechat.appID,
+                "uid":message.FromUserName
+            };
+            let searchData = await client.handle('semantic', semanticData);
+            console.log(searchData);
+
+            reply = JSON.stringify(searchData);
         }
         else {
             reply='谢谢您的关注！'
