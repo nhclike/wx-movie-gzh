@@ -15,7 +15,7 @@ const help = '亲爱的，欢迎关注\n' +
 exports.reply=async (ctx,next)=>{
     const message=ctx.weixin;
 
-    let { getWechat } = require('./index')
+    let { getWechat } = require('./index');
     let client = getWechat();
     //文本回复
     if(message.MsgType==='text'){

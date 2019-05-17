@@ -41,7 +41,9 @@ const api={
     shortUrl: {
         create: base + 'shorturl?'
     },
-
+    ticket: {
+        get: base + 'ticket/getticket?'
+    }
 };
 
 module.exports=class Wechat{
@@ -51,6 +53,8 @@ module.exports=class Wechat{
         this.appSercret=opts.appSecret;
         this.getAccessToken=opts.getAccessToken;
         this.saveAccessToken=opts.saveAccessToken;
+        this.getTicket = opts.getTicket;
+        this.saveTicket = opts.saveTicket;
         this.fetchAccessToken();
     }
     async request(options){
@@ -68,7 +72,7 @@ module.exports=class Wechat{
     async fetchAccessToken(){
         let  data=await this.getAccessToken();
 
-        if(!this.isValidToken(data)){
+        if(!this.isValid(data, 'access_token')){
             data=await this.updateAccessToken()
         }
 
@@ -90,9 +94,33 @@ module.exports=class Wechat{
 
         return data;
     }
-    isValidToken(data){
-        if(!data || !data.expires_in){
-            return false;
+    //获取ticket
+    async fetchTicket (token) {
+        let data = await this.getTicket();
+
+        if (!this.isValid(data, 'ticket')) {
+            data = await this.updateTicket(token)
+        }
+
+        await this.saveTicket(data);
+
+        return data
+    }
+    //更新ticket
+    async updateTicket (token) {
+        const url = `${api.ticket.get}access_token=${token}&type=jsapi`;
+
+        const data = await this.request({ url });
+        const now = new Date().getTime();
+        const expiresIn = now + (data.expires_in - 20) * 1000;
+
+        data.expires_in = expiresIn;
+
+        return data
+    }
+    isValid(data, name){
+        if (!data || !data[name].expires_in) {
+            return false
         }
 
         const expiresIn=data.expires_in;
