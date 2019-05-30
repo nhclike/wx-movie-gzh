@@ -31,3 +31,17 @@ mongod -storageEngine mmapv1 -dbpath D:\data
 获取access_token
 运行node wechat/index.js
 打印出access_token
+
+
+7开启本地服务
+npm run dev  或者借助ideal  本质是node app.js
+
+8在微信web开发工具中测试
+地址栏输入：http://nhclike.free.idcfengye.com/movie
+验证授权是否通过
+
+9移动端调试
+根据微信web测试工具中提示配置手机的网络
+在手机微信里访问页面http://172.19.82.178/movie   (公司电脑ip默认端口80；换电脑需要重新配置代理)
+可以访问到页面但是一直显示域名无效
+

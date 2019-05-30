@@ -43,7 +43,10 @@ const api={
     },
     ticket: {
         get: base + 'ticket/getticket?'
-    }
+    },
+    ai: {
+        translate: base + 'media/voice/translatecontent?'
+    },
 };
 
 module.exports=class Wechat{
@@ -353,5 +356,12 @@ module.exports=class Wechat{
         semanticData.appid = this.appID;
 
         return { method: 'POST', url, body: semanticData }
+    }
+
+    // AI 接口
+    aiTranslate (token, body, lfrom, lto) {
+        const url = api.ai.translate + 'access_token=' + token + '&lfrom=' + lfrom + '&lto=' + lto;
+
+        return { method: 'POST', url, body }
     }
 };

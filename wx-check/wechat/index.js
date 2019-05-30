@@ -33,9 +33,6 @@ const wechatCfg = {
     }
 };
 
-/*(async()=>{
-    const client=new Wechat(wechatCfg.wechat);
-})();*/
 
 exports.test=async()=>{
     const client=new Wechat(wechatCfg.wechat);

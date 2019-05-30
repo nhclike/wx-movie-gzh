@@ -247,7 +247,7 @@ exports.reply=async (ctx,next)=>{
 
             reply = '菜单创建成功，请等 5 分钟，或者先取消关注，再重新关注就可以看到新菜单'
         }
-        else if (content === '14') { //测试获取二维码
+        else if (content === '14') { //测试获取临时二维码
             let tempQrData = {
               expire_seconds: 400000,
               action_name: 'QR_SCENE',
@@ -261,22 +261,23 @@ exports.reply=async (ctx,next)=>{
             console.log(tempTicketData);
             let tempQr = client.showQrcode(tempTicketData.ticket);
             reply = tempQr;
-            // let qrData = {
-            //     action_name: 'QR_SCENE',
-            //     action_info: {
-            //         scene: {
-            //             scene_id: 99
-            //         }
-            //     }
-            // };
-            // let ticketData = await client.handle('createQrcode', qrData);
-            // console.log(ticketData);
-            // let qr = client.showQrcode(ticketData.ticket);
-            // console.log(qr);
-            //
-            // reply = qr
         }
-        else if (content === '15') {  //测试长链接转短链接
+        else if (content === '15') { //测试获取永久二维码
+
+            let qrData = {
+                action_name: 'QR_SCENE',
+                action_info: {
+                    scene: {
+                        scene_id: 99
+                    }
+                }
+            };
+            let ticketData = await client.handle('createQrcode', qrData);
+            console.log(ticketData);
+            let qr = client.showQrcode(ticketData.ticket);
+            reply = qr
+        }
+        else if (content === '16') {  //测试长链接转短链接
             let longurl = 'https://coding.imooc.com/class/178.html?a=1';
             let shortData = await client.handle('createShortUrl', 'long2short', longurl);
             console.log("短链接数据");
@@ -284,7 +285,7 @@ exports.reply=async (ctx,next)=>{
 
             reply = shortData.short_url;
         }
-        else if(content==='16'){  //测试语意理解
+        else if(content==='17'){  //测试语意理解
             let semanticData={
                 "query":"查一下明天从北京到上海的南航机票",
                 "city":"北京",
@@ -296,6 +297,13 @@ exports.reply=async (ctx,next)=>{
             console.log(searchData);
 
             reply = JSON.stringify(searchData);
+        }else if (content === '18') { //测试ai翻译接口
+            let body = '编程语言难学么';
+            let aiData = await client.handle('aiTranslate', body, 'zh_CN', 'en_US')
+
+            console.log(aiData);
+
+            reply = JSON.stringify(aiData)
         }
         else {
             reply='谢谢您的关注！'

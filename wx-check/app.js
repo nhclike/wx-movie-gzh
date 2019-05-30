@@ -38,6 +38,50 @@ var tpl= heredoc(function () {/*
                             ] // 必填，需要使用的JS接口列表
                         });
 
+
+                        wx.ready(function(){
+                            // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+                            wx.checkJsApi({
+                                jsApiList: ['chooseImage'], // 需要检测的JS接口列表，所有JS接口列表见附录2,
+                                success: function(res) {
+                                console.log(res);
+                                // 以键值对的形式返回，可用的api值true，不可用为false
+                                // 如：{"checkResult":{"chooseImage":true},"errMsg":"checkJsApi:ok"}
+                                }
+                            });
+
+                            var isRecording=false;
+                            $('h1').on('tap',function(){
+                                if(!isRecording){
+
+                                   isRecording=true;
+                                    wx.startRecord({
+                                        cancel:function(){
+                                            window.alert("那就不能搜索了喔！");
+                                        }
+                                    });
+
+                                    return ;
+                                }
+
+                                 isRecording=false;
+                                wx.stopRecord({
+                                    success: function (res) {
+                                        var localId = res.localId;
+
+                                        wx.translateVoice({
+                                            localId: localId, // 需要识别的音频的本地Id，由录音相关接口获得
+                                            isShowProgressTips: 1, // 默认为1，显示进度提示
+                                            success: function (res) {
+                                                alert(res.translateResult); // 语音识别的结果
+                                            }
+                                        });
+                                    }
+                                });
+
+                            })
+                        });
+
                 </script>
         </body>
  </html>
@@ -64,10 +108,10 @@ var tpl= heredoc(function () {/*
         const app=new Koa();
 
         //实现与微信服务交互（通过微信服务验证请求的标签是否合法）
-        //app.use(weChat(config,reply));
+        app.use(weChat(config,reply));
 
         //测试浏览器访问
-        app.use(async (ctx,next)=> {
+        /*app.use(async (ctx,next)=> {
                 console.log(ctx);
             if(ctx.href.indexOf('/movie')>-1){
                 let { getWechat }=require("./wechat/index");
@@ -90,7 +134,7 @@ var tpl= heredoc(function () {/*
                 ctx.body=content;
             }
             await next();
-        });
+        });*/
 
 
         app.listen(config.port);
