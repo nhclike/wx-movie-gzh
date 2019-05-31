@@ -6,6 +6,7 @@ const {initSchemas,connect} =require('./app/database/init');
 const {sign} =require("./wechat-lib/util");
 const ejs=require('ejs');
 const heredoc=require('heredoc');
+const Router = require('koa-router');
 
 var tpl= heredoc(function () {/*
  <!DOCTYPE html>
@@ -106,9 +107,14 @@ var tpl= heredoc(function () {/*
 
        //生成服务器实例
         const app=new Koa();
+        const router = new Router();
 
         //实现与微信服务交互（通过微信服务验证请求的标签是否合法）
-        app.use(weChat(config,reply));
+        //通过路由的方式接管中间件（需要重新修改接口配置信息地址--http://nhclike.free.idcfengye.com/wx-hear）
+        require('./config/routes')(router);
+        //使得路由上的中间件生效
+        app.use(router.routes()).use(router.allowedMethods());
+        //app.use(weChat(config.wechat,reply));
 
         //测试浏览器访问
         /*app.use(async (ctx,next)=> {

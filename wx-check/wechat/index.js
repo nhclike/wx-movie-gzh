@@ -1,5 +1,6 @@
 const config=require('./../config/config');
 const Wechat=require('../wechat-lib/index');
+const WechatOAuth = require('../wechat-lib/oauth');
 
 const mongoose=require('mongoose');
 const Token=mongoose.model('Token');
@@ -46,6 +47,7 @@ exports.test=async()=>{
 
 };
 exports.getWechat = () => new Wechat(wechatCfg.wechat);
+exports.getOAuth = () => new WechatOAuth(wechatCfg.wechat);
 
 
 

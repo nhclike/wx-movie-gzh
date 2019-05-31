@@ -5,11 +5,17 @@
     npm run dev
 
 2检查本地是否跑起来
-访问 http://localhost:3008
+访问 http://localhost:80
 看是否返回hello koa
 
 3启动Ngrok
 http://www.ngrok.cc/_book/start/ngrok_windows.html
+账号：2471814041@qq.com
+密码：nhc201108
+端口配置只能是80
+(首先检查80端口有没有被其他端口占用，踩坑---之前被nginx占用导致接口信息配置一直失败)；
+
+
 
 bin中的启动工具打开并且输入
 4ea9d5163b6f881b

@@ -10,12 +10,16 @@ module.exports=(config,reply)=>{
             echostr
         }=ctx.query;
 
-        const token=config.wechat.token;
+        const token=config.token;
         let str=[token,timestamp,nonce].sort().join('');
         console.log("微信原始的查询请求数据");
         console.log(ctx.query);
         const sha=sha1(str);
         if(ctx.method==="GET"){
+            console.log(sha+"sha");
+            console.log(signature+"signature");
+            console.log(echostr+"echostr");
+
             //判断签名是否合法
             if(sha===signature){
                 ctx.body=echostr
