@@ -73,6 +73,9 @@ exports.tpl=(content,message)=>{
     return template(info);
 };
 
+
+
+//签名算法
 const createNonce = () => {
     return Math.random().toString(36).substr(2, 16)
 };

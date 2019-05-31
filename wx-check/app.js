@@ -3,10 +3,14 @@ const weChat=require('./wechat-lib/middleware');
 const config=require('./config/config');
 const {reply}=require('./wechat/reply');
 const {initSchemas,connect} =require('./app/database/init');
+
 const {sign} =require("./wechat-lib/util");
 const ejs=require('ejs');
 const heredoc=require('heredoc');
+
 const Router = require('koa-router');
+const moment = require('moment');
+const { resolve } = require('path');
 
 var tpl= heredoc(function () {/*
  <!DOCTYPE html>
@@ -103,11 +107,19 @@ var tpl= heredoc(function () {/*
 
         await test();*/
 
-
-
        //生成服务器实例
         const app=new Koa();
         const router = new Router();
+        const views = require('koa-views');
+
+        //模版引擎渲染
+        // Must be used before any router is used
+        app.use(views(resolve(__dirname, './app/views'), {
+            extension: 'pug',
+            options: {
+                moment: moment
+            }
+        }));
 
         //实现与微信服务交互（通过微信服务验证请求的标签是否合法）
         //通过路由的方式接管中间件（需要重新修改接口配置信息地址--http://nhclike.free.idcfengye.com/wx-hear）
