@@ -54,7 +54,7 @@
 10 网页授权测试
 
 1 修改项目结构后，通过路由来与微信进行消息通信---重新配置测试号的接口信息--地址改为
-  http://nhclike.free.idcfengye.com/wx-hear---需要重新走通微信验证
+  http://nhclike.free.idcfengye.com/wx-hear---需要重新走通微信验证开发者身份
 2 修改设置网页授权获取用户基本信息的域名---（不要加http://）
 3 在微信web开发者调试工具中测试地址
   http://nhclike.free.idcfengye.com/wx-oauth?id=100
@@ -64,8 +64,8 @@
 
 1 全局安装pug pug-cli
   cnpm pug pug-cli -g
-2 ideal安装pug插件https://www.w3cschool.cn/intellij_idea_doc/jade.html
+2 ideal安装pug插件 https://www.w3cschool.cn/intellij_idea_doc/jade.html
 3 设置pug watch自动监听编译   https://jingyan.baidu.com/article/c146541395a7a40bfcfc4cb6.html
-4 pug基本命令和用法https://www.cnblogs.com/xiaohuochai/p/7222227.html
+4 pug基本命令和用法  https://www.cnblogs.com/xiaohuochai/p/7222227.html
 
 
