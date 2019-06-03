@@ -5,14 +5,14 @@
     npm run dev
 
 2 检查本地是否跑起来
-  访问 http://localhost:80
+  访问 http://localhost:port
   看是否返回hello koa
 
 3 启动Ngrok
   http://www.ngrok.cc/_book/start/ngrok_windows.html
   账号：2471814041@qq.com
   密码：nhc201108
-  端口配置只能是80
+  端口配置如果是80
   (首先检查80端口有没有被其他端口占用，踩坑---之前被nginx占用导致接口信息配置一直失败)；
 
 
@@ -42,6 +42,8 @@
 7 开启本地服务
   npm run dev  或者借助ideal  本质是node app.js
 
+
+//ejs初期编写模版时测试方法，后改为pug模版编译后废弃8和9的测试
 8 在微信web开发工具中测试
   地址栏输入：http://nhclike.free.idcfengye.com/movie
   验证授权是否通过
@@ -51,6 +53,7 @@
   在手机微信里访问页面http://172.19.82.178/movie   (公司电脑ip默认端口80；换电脑需要重新配置代理)
   可以访问到页面但是一直显示域名无效
 
+//最新代码测试配置
 10 网页授权测试
 
 1 修改项目结构后，通过路由来与微信进行消息通信---重新配置测试号的接口信息--地址改为

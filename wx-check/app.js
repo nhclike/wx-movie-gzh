@@ -11,6 +11,9 @@ const heredoc=require('heredoc');
 const Router = require('koa-router');
 const moment = require('moment');
 const { resolve } = require('path');
+const bodyParser = require('koa-bodyparser');
+const session = require('koa-session');
+const mongoose = require('mongoose');
 
 var tpl= heredoc(function () {/*
  <!DOCTYPE html>
@@ -120,7 +123,12 @@ var tpl= heredoc(function () {/*
                 moment: moment
             }
         }));
+        app.keys = ['imooc'];
 
+        //用户会话状态
+        app.use(session(app));
+        //
+        app.use(bodyParser());
         //实现与微信服务交互（通过微信服务验证请求的标签是否合法）
         //通过路由的方式接管中间件（需要重新修改接口配置信息地址--http://nhclike.free.idcfengye.com/wx-hear）
         require('./config/routes')(router);
@@ -154,6 +162,32 @@ var tpl= heredoc(function () {/*
             await next();
         });*/
 
+        app.use(async (ctx, next) => {
+            const User = mongoose.model('User')
+            let user = ctx.session.user
+
+            if (user && user._id) {
+                user = await User.findOne({ _id: user._id })
+
+                if (user) {
+                    ctx.session.user = {
+                        _id: user._id,
+                        role: user.role,
+                        nickname: user.nickname
+                    }
+                    ctx.state = Object.assign(ctx.state, {
+                        user: {
+                            _id: user._id,
+                            nickname: user.nickname
+                        }
+                    })
+                }
+            } else {
+                ctx.session.user = null
+            }
+
+            await next()
+        })
 
         app.listen(config.port);
 

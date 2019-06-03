@@ -34,7 +34,7 @@ TicketSchema.statics = {
   async getTicket() {
     const ticket = await this.findOne({
       name: 'ticket'
-    })
+    });
 
     if (ticket && ticket.ticket) {
       ticket.ticket = ticket.ticket
@@ -63,6 +63,6 @@ TicketSchema.statics = {
 
     return data
   }
-}
+};
 
 const Ticket = mongoose.model('Ticket', TicketSchema);
