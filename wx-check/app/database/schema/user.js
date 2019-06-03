@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const md5=require('md5-node');
 // 加密权重
 const SALT_WORK_FACTOR = 10;
 // 登录的最大失败尝试次数
@@ -65,34 +65,18 @@ UserSchema.pre('save', function (next) {
 });
 
 
-/*UserSchema.pre('save', function (next) {
+UserSchema.pre('save', function (next) {
     let user = this;
-
-    if (!user.isModified('password')) return next()
-
-    bcrypt.genSalt(SALT_WORK_FACTOR, (err, salt) => {
-
-        console.log(err);
-        if (err) return next(err);
-
-        bcrypt.hash(user.password, salt, (error, hash) => {
-            if (error) return next(error);
-
-            user.password = hash;
-
-            next()
-        })
-    })
-});*/
+    user.password = md5(user.password);
+    next()
+});
 
 // 静态方法
 UserSchema.methods = {
     comparePassword: function (_password, password) {
         return new Promise((resolve, reject) => {
-            bcrypt.compare(_password, password, function (err, isMatch) {
-                if (!err) resolve(isMatch)
-                else reject(err)
-            })
+            if (_password===password) resolve(true);
+            else reject(false)
         })
     },
 
@@ -116,7 +100,7 @@ UserSchema.methods = {
                     $inc: {
                         loginAttempts: 1
                     }
-                }
+                };
 
                 if (that.loginAttempts + 1 >= MAX_LOGIN_ATTEMPTS || !that.isLocked) {
                     updates.$set = {

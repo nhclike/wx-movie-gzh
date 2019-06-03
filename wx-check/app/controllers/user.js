@@ -1,5 +1,6 @@
-const mongoose = require('mongoose')
-const User = mongoose.model('User')
+const mongoose = require('mongoose');
+const User = mongoose.model('User');
+const md5=require('md5-node');
 
 // 1. 实现一个注册页面的控制   showSignup
 exports.showSignup = async (ctx, next) => {
@@ -60,12 +61,13 @@ exports.signin = async (ctx, next) => {
     console.log("用户登录");
 
     const { email, password } = ctx.request.body.user;
+    //通过邮箱查找用户
     const user = await User.findOne({ email });
 
     //用户不存在重定向到注册页面
     if (!user) return ctx.redirect('/user/signup');
 
-    const isMatch = await user.comparePassword(password, user.password)
+    const isMatch = await user.comparePassword(md5(password), user.password);
     console.log(isMatch+"isMatch");
 
     //登录验证成功重定向到主页面
@@ -116,7 +118,7 @@ exports.signinRequired = async (ctx, next) => {
 
 // 需要管理员身份的路由中间件校验
 exports.adminRequired = async (ctx, next) => {
-    const user = ctx.session.user
+    const user = ctx.session.user;
 
     if (user.role !== 'admin') {
         return ctx.redirect('/user/signin')
