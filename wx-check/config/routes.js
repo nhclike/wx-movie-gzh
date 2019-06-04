@@ -24,4 +24,7 @@ module.exports= router =>{
     router.post('/user/signup', User.signup);
     router.post('/user/signin', User.signin);
     router.get('/logout', User.logout);
+
+    // 后台的用户列表页面
+    router.get('/admin/user/list', User.signinRequired, User.adminRequired, User.list)
 };
