@@ -129,7 +129,8 @@ exports.adminRequired = async (ctx, next) => {
 
 exports.del = async (ctx, next) => {
     const id = ctx.query.id;
-
+    console.log("删除用户id");
+    console.log(id);
     try {
         await User.remove({ _id: id });
         ctx.body = { success: true }

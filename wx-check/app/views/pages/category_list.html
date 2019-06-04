@@ -78,11 +78,9 @@
         <table class="table table-hover table-bordered">
           <thead>
             <tr>
-              <th>昵称</th>
-              <th>邮箱</th>
-              <th>来源</th>
-              <th>身份</th>
+              <th>名称</th>
               <th>更新时间</th>
+              <th>修改</th>
               <th>删除</th>
             </tr>
           </thead>
@@ -96,12 +94,11 @@
           $('.del').click(function(e) {
               var target = $(e.target)
               var id = target.data('id')
-              console.log(id);
               var tr = $('.item-id-' + id)
       
               $.ajax({
                   type: 'DELETE',
-                  url: '/admin/user?id=' + id
+                  url: '/admin/category?id=' + id
               })
                   .done(function(results) {
                       if (results.success) {

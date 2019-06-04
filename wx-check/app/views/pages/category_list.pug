@@ -6,23 +6,17 @@ block content
             table.table.table-hover.table-bordered
                 thead
                     tr
-                        th 昵称
-                        th 邮箱
-                        th 来源
-                        th 身份
+                        th 名称
                         th 更新时间
+                        th 修改
                         th 删除
                 tbody
-                    if users && users.length
-                        each item in users
+                    if categories && categories.length
+                        each item in categories
                             tr(class='item-id-' + item._id)
-                                td #{item.nickname}
-                                td #{item.email}
-                                td
-                                    if item.from == 'wechat'
-                                        | 微信
-                                td #{item.role}
+                                td #{item.name}
                                 td #{moment(item.updatedAt).format('MM/DD/YYYY')}
+                                td: a(target='_blank', href='/admin/category/update/' + item._id) 修改
                                 td
                                     button.btn.btn-danger.del(type='button', data-id=item._id) 删除
     script.
@@ -30,12 +24,11 @@ block content
             $('.del').click(function(e) {
                 var target = $(e.target)
                 var id = target.data('id')
-                console.log(id);
                 var tr = $('.item-id-' + id)
 
                 $.ajax({
                     type: 'DELETE',
-                    url: '/admin/user?id=' + id
+                    url: '/admin/category?id=' + id
                 })
                     .done(function(results) {
                         if (results.success) {
