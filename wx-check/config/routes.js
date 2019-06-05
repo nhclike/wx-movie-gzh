@@ -3,6 +3,7 @@ const Wechat = require('../app/controllers/wechat');
 const User = require('../app/controllers/user');
 const Index = require('../app/controllers/index');
 const Category = require('../app/controllers/category');
+const Movie = require('../app/controllers/movie');
 
 module.exports= router =>{
     router.get('/', Index.homePage);
@@ -42,5 +43,20 @@ module.exports= router =>{
     router.get('/admin/category/update/:_id', User.signinRequired, User.adminRequired, Category.show);
     //删除分类
     router.delete('/admin/category', User.signinRequired, User.adminRequired, Category.del)
+
+
+
+    // 后台的电影管理页面
+    //电影分类录入页面
+    router.get('/admin/movie', User.signinRequired, User.adminRequired, Movie.show);
+    //电影更新
+    router.get('/admin/movie/update/:_id', User.signinRequired, User.adminRequired, Movie.show);
+
+    //电影分类表单提交
+    router.post('/admin/movie', User.signinRequired, User.adminRequired,  Movie.new);
+    //显示电影列表页面
+    router.get('/admin/movie/list', User.signinRequired, User.adminRequired, Movie.list);
+    //电影删除
+    router.delete('/admin/movie', User.signinRequired, User.adminRequired, Movie.del)
 
 };
