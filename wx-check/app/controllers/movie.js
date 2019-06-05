@@ -100,23 +100,26 @@ exports.list = async (ctx, next) => {
 
 // 删除电影数据
 exports.del = async (ctx, next) => {
-    const id = ctx.query.id
+    const id = ctx.query.id;
+    //找到分类里的这个电影
     const cat = await Category.findOne({
         movies: {
             $in: [id]
         }
-    })
+    });
 
+    //删除电影的同时，将此电影所属分类中的电影的电影id也删除，这样下回通过分类查询该电影时也被删除掉了
     if (cat && cat.movies.length) {
-        const index = cat.movies.indexOf(id)
-        cat.movies.splice(index, 1)
+        const index = cat.movies.indexOf(id);
+        cat.movies.splice(index, 1);
         await cat.save()
     }
 
+    //电影文档中删除此条数据
     try {
-        await Movie.remove({ _id: id })
+        await Movie.remove({ _id: id });
         ctx.body = { success: true }
     } catch (err) {
         ctx.body = { success: false }
     }
-}
+};
