@@ -14,6 +14,7 @@ const { resolve } = require('path');
 const bodyParser = require('koa-bodyparser');
 const session = require('koa-session');
 const mongoose = require('mongoose');
+const serve = require('koa-static');
 
 var tpl= heredoc(function () {/*
  <!DOCTYPE html>
@@ -128,8 +129,15 @@ var tpl= heredoc(function () {/*
 
         //使用session保存用户会话状态
         app.use(session(app));
+
         //参数解析
         app.use(bodyParser());
+
+        // 配置静态web服务的中间件
+        // 使得koa可以读取js.css.html.图片，视频等静态文件
+        // 使得上传的文件可以被访问到
+        app.use(serve(resolve(__dirname, '../public')));
+
         //用户信息更新后传递到pug模版上进行渲染
         app.use(async (ctx, next) => {
             const User = mongoose.model('User');

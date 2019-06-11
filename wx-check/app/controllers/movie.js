@@ -1,9 +1,13 @@
+const { readFile, writeFile } = require('fs');
+const { resolve } = require('path');
 
 const mongoose = require('mongoose');
 const Movie = mongoose.model('Movie');
 const Category = mongoose.model('Category');
 const _ = require('lodash');
-
+const util = require('util');
+const readFileAsync = util.promisify(readFile);  //让一个遵循异常优先的回调风格的函数， 即 (err, value) => ... 回调函数是最后一个参数, 返回一个返回值是一个 promise 版本的函数。
+const writeFileAsync = util.promisify(writeFile);
 // 0. 电影 Model 创建
 // 1. 电影的录入页面
 exports.show = async (ctx, next) => {
@@ -24,9 +28,30 @@ exports.show = async (ctx, next) => {
     })
 };
 
+//保存文件
+exports.savePoster = async (ctx, next) => {
+    const posterData = ctx.request.body.files.uploadPoster;
+    const filePath = posterData.path;
+    const fileName = posterData.name;
+
+    if (fileName) {
+        const data = await readFileAsync(filePath); //读取上传的文件
+        const timestamp = Date.now();
+        const type = posterData.type.split('/')[1];
+        const poster = timestamp + '.' + type;  //保存文件的文件名
+        const newPath = resolve(__dirname, '../../../', 'public/upload/' + poster); //文件保存的路径
+
+        await writeFileAsync(newPath, data);  //将文件写入到新的路径
+
+        ctx.poster = poster
+    }
+
+    await next()
+};
+
 // 2. 电影的创建持久化
 exports.new = async (ctx, next) => {
-    let movieData = ctx.request.body;
+    let movieData = ctx.request.body.fields;
     let movie;
     console.log("电影录入后台接收到的数据");
     console.log(movieData);
@@ -37,6 +62,12 @@ exports.new = async (ctx, next) => {
             _id: movieData._id
         });
     }
+
+    //如果有上传的文件就用上传的文件做封面
+    if (ctx.poster) {
+        movieData.poster = ctx.poster
+    }
+
     //将电影分类和电影信息建立关联关系
     const categoryId = movieData.categoryId;
     const categoryName = movieData.categoryName;

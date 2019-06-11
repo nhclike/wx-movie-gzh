@@ -4,6 +4,7 @@ const User = require('../app/controllers/user');
 const Index = require('../app/controllers/index');
 const Category = require('../app/controllers/category');
 const Movie = require('../app/controllers/movie');
+const koaBody = require('koa-body');
 
 module.exports= router =>{
     router.get('/', Index.homePage);
@@ -53,7 +54,7 @@ module.exports= router =>{
     router.get('/admin/movie/update/:_id', User.signinRequired, User.adminRequired, Movie.show);
 
     //电影分类表单提交
-    router.post('/admin/movie', User.signinRequired, User.adminRequired,  Movie.new);
+    router.post('/admin/movie', User.signinRequired, User.adminRequired, koaBody({ multipart: true }), Movie.savePoster, Movie.new);
     //显示电影列表页面
     router.get('/admin/movie/list', User.signinRequired, User.adminRequired, Movie.list);
     //电影删除
