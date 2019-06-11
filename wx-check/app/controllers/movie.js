@@ -28,6 +28,24 @@ exports.show = async (ctx, next) => {
     })
 };
 
+//电影的详情页
+exports.detail = async (ctx, next) => {
+    const _id = ctx.params._id;
+    const movie =await Movie.findOne({
+        _id: _id
+    });
+
+    await Movie.update({ _id }, { $inc: { pv: 1 } });
+
+
+
+    await ctx.render('pages/detail', {
+        title: '电影详情页面',
+        movie
+
+    })
+};
+
 //保存文件
 exports.savePoster = async (ctx, next) => {
     const posterData = ctx.request.body.files.uploadPoster;
@@ -121,7 +139,8 @@ exports.new = async (ctx, next) => {
 exports.list = async (ctx, next) => {
     //获取所有电影数据
     const movies = await Movie.find({
-    });
+    }).populate('category', 'name');  //关联查询出分类的名字
+    console.log(movies);
 
     await ctx.render('pages/movie_list', {
         title: '分类的列表页面',

@@ -11,6 +11,9 @@ module.exports= router =>{
 
     router.get('/sdk', Wechat.sdk);
 
+    // 电影详情页
+    router.get('/movie/:_id', Movie.detail);
+
     // 进入微信消息中间件
     router.get('/wx-hear', Wechat.hear);
     router.post('/wx-hear', Wechat.hear);
