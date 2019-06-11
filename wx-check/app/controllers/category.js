@@ -65,9 +65,9 @@ exports.del = async (ctx, next) => {
 
     try {
         await Category.remove({ _id: id });
-        /*await Movie.remove({
+        await Movie.remove({
             category: id
-        })*/
+        });
         ctx.body = { success: true }
     } catch (err) {
         ctx.body = { success: false }

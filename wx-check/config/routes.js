@@ -11,6 +11,8 @@ module.exports= router =>{
 
     router.get('/sdk', Wechat.sdk);
 
+    // 搜索
+    router.get('/results', Movie.search);
     // 电影详情页
     router.get('/movie/:_id', Movie.detail);
 

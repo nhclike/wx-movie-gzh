@@ -1,5 +1,6 @@
 const { readFile, writeFile } = require('fs');
 const { resolve } = require('path');
+const api = require('../api');
 
 const mongoose = require('mongoose');
 const Movie = mongoose.model('Movie');
@@ -171,5 +172,39 @@ exports.del = async (ctx, next) => {
         ctx.body = { success: true }
     } catch (err) {
         ctx.body = { success: false }
+    }
+};
+
+// 电影搜索功能
+exports.search=async (ctx,next)=>{
+    const {cat,q,p}=ctx.query;  //p为必传，cat和q二选一
+    const page = parseInt(p, 10) || 0;
+    const count = 2;
+    const index = page * count;
+
+    if (cat){ //进入分类的页面
+        const categories = await api.movie.searchByCategroy(cat);
+        const category = categories[0];
+        let movies = category.movies || [];
+        let results = movies.slice(index, index + count);
+        await ctx.render('pages/results', {
+            title: '分类搜索结果页面',
+            keyword: category.name,
+            currentPage: (page + 1),
+            query: 'cat=' + cat, //分类+分页
+            totalPage: Math.ceil(movies.length / count),
+            movies: results
+        });
+    }else { //全局按照关键词搜索
+        let movies = await api.movie.searchByKeyword(q);
+        let results = movies.slice(index, index + count);
+        await ctx.render('pages/results', {
+            title: '关键词搜索结果页面',
+            keyword: q,
+            currentPage: (page + 1),
+            query: 'q=' + q, //模糊搜索+分页
+            totalPage: Math.ceil(movies.length / count),
+            movies: results
+        })
     }
 };
