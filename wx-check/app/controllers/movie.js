@@ -5,6 +5,8 @@ const api = require('../api');
 const mongoose = require('mongoose');
 const Movie = mongoose.model('Movie');
 const Category = mongoose.model('Category');
+const Comment = mongoose.model('Comment');
+
 const _ = require('lodash');
 const util = require('util');
 const readFileAsync = util.promisify(readFile);  //让一个遵循异常优先的回调风格的函数， 即 (err, value) => ... 回调函数是最后一个参数, 返回一个返回值是一个 promise 版本的函数。
@@ -38,12 +40,18 @@ exports.detail = async (ctx, next) => {
 
     await Movie.update({ _id }, { $inc: { pv: 1 } });
 
-
+    const comments = await Comment.find({
+        movie: _id
+    })
+        .populate('from', '_id nickname')
+        .populate('replies.from replies.to', '_id nickname');
+    console.log("评论对象");
+    console.log(comments);
 
     await ctx.render('pages/detail', {
         title: '电影详情页面',
-        movie
-
+        movie,
+        comments
     })
 };
 

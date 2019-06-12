@@ -75,5 +75,32 @@
     </div>
     <div class="container" style="margin-top: 20px">
     </div>
+    <script>
+      $(function(){
+          //点击头像对此人回复
+          $('.comment').click(function (e) {
+              var target = $(this)
+              var toId = target.data('tid')
+              var commentId = target.data('cid')
+      
+              $('#toId').val(toId)
+              $('#commentId').val(commentId)
+          })
+          //提交评论；可能是对其他人的回复也可能是对电影的直接评论
+          $('#commentSubmit').click(function (e) {
+              e.preventDefault()
+      
+              $.ajax({
+                  type: 'POST',
+                  url: '/comment',
+                  data: $('#commentForm').serialize()
+              }).done(function (results) {
+                  if (results.success) {
+                      window.location.reload()
+                  }
+              })
+          })
+      })
+    </script>
   </body>
 </html>

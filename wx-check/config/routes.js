@@ -4,6 +4,8 @@ const User = require('../app/controllers/user');
 const Index = require('../app/controllers/index');
 const Category = require('../app/controllers/category');
 const Movie = require('../app/controllers/movie');
+const Comment = require('../app/controllers/comment');
+
 const koaBody = require('koa-body');
 
 module.exports= router =>{
@@ -13,6 +15,8 @@ module.exports= router =>{
 
     // 搜索
     router.get('/results', Movie.search);
+    // 评论
+    router.post('/comment', User.signinRequired, Comment.save);
     // 电影详情页
     router.get('/movie/:_id', Movie.detail);
 
