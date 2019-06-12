@@ -308,7 +308,7 @@ exports.reply=async (ctx,next)=>{
             reply = JSON.stringify(searchData);
         }else if (content === '18') { //测试ai翻译接口
             let body = '编程语言难学么';
-            let aiData = await client.handle('aiTranslate', body, 'zh_CN', 'en_US')
+            let aiData = await client.handle('aiTranslate', body, 'zh_CN', 'en_US');
 
             console.log(aiData);
 

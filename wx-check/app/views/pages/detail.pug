@@ -62,7 +62,8 @@ block content
          $(function(){
 
              var url = window.location.href
-
+             //电影详情页增加js-sdk签名权限认证
+             //使得可以将详情页的数据分享
              $.ajax({
                  type: 'POST',
                  url: '/wechat/signature?url=' + encodeURIComponent(url)
