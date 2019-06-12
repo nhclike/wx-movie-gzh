@@ -1,7 +1,7 @@
 const fs = require('fs');
 const base='https://api.weixin.qq.com/cgi-bin/';
-const mpBase = 'https://mp.weixin.qq.com/cgi-bin/';
-const semanticUrl = 'https://api.weixin.qq.com/semantic/semproxy/search?';
+const mpBase = 'https://mp.weixin.qq.com/cgi-bin/';  //Ticket 换取二维码
+const semanticUrl = 'https://api.weixin.qq.com/semantic/semproxy/search?';  //语义地址
 
 const request=require('request-promise');
 

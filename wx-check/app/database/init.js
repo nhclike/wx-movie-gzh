@@ -31,7 +31,7 @@ exports.connect=(db)=>{
             console.log(err)
         });
         mongoose.connection.on('open',()=>{
-           resolve()
+           resolve();
            console.log("mongodb connected 本地数据库连接成功")
         })
     } )

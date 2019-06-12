@@ -45,7 +45,7 @@ exports.detail = async (ctx, next) => {
     })
         .populate('from', '_id nickname')
         .populate('replies.from replies.to', '_id nickname');
-    console.log("评论对象");
+    console.log("controllers.movie.detail评论对象");
     console.log(comments);
 
     await ctx.render('pages/detail', {

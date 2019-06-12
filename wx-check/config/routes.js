@@ -67,6 +67,8 @@ module.exports= router =>{
     //显示电影列表页面
     router.get('/admin/movie/list', User.signinRequired, User.adminRequired, Movie.list);
     //电影删除
-    router.delete('/admin/movie', User.signinRequired, User.adminRequired, Movie.del)
+    router.delete('/admin/movie', User.signinRequired, User.adminRequired, Movie.del);
 
+    // 异步处理网页的签名
+    router.post('/wechat/signature', Wechat.getSDKSignature);
 };

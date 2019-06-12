@@ -1,100 +1,101 @@
 const Koa=require('koa');
-const weChat=require('./wechat-lib/middleware');
-const config=require('./config/config');
-const {reply}=require('./wechat/reply');
-const {initSchemas,connect} =require('./app/database/init');
-
-const {sign} =require("./wechat-lib/util");
-const ejs=require('ejs');
-const heredoc=require('heredoc');
-
-const Router = require('koa-router');
-const moment = require('moment');
 const { resolve } = require('path');
 const bodyParser = require('koa-bodyparser');
 const session = require('koa-session');
-const mongoose = require('mongoose');
 const serve = require('koa-static');
+const mongoose = require('mongoose');
+const moment = require('moment');
+const Router = require('koa-router');
+const config=require('./config/config');
+const {initSchemas,connect} =require('./app/database/init');
 
-var tpl= heredoc(function () {/*
- <!DOCTYPE html>
- <html>
-        <head lang="zh-cn">
-                <title>猜电影</title>
-                <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1">
-
-        </head>
-        <body>
-                <h1>点击标题开始录音翻译</h1>
-
-                <p id="title"></p>
-                <div id="poster"></div>
-
-                <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-                <script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
-                <script>
-                        wx.config({
-                            debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-                            appId: 'wxd46b7a729709996a', // 必填，公众号的唯一标识
-                            timestamp: '<%= timestamp %>', // 必填，生成签名的时间戳
-                            nonceStr: '<%= noncestr %>', // 必填，生成签名的随机串
-                            signature:  '<%= signature %>',// 必填，签名
-                            jsApiList: [
-                                'startRecord',
-                                'stopRecord',
-                                'onVoiceRecordEnd',
-                                'translateVoice'
-                            ] // 必填，需要使用的JS接口列表
-                        });
+//测试代码
+/*const weChat=require('./wechat-lib/middleware');
+//const {reply}=require('./wechat/reply');  //此代码必须注释会导致mongoose的schame注册失败
+const {sign} =require("./wechat-lib/util");
+const ejs=require('ejs');
+const heredoc=require('heredoc');*/
 
 
-                        wx.ready(function(){
-                            // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
-                            wx.checkJsApi({
-                                jsApiList: ['chooseImage'], // 需要检测的JS接口列表，所有JS接口列表见附录2,
-                                success: function(res) {
-                                console.log(res);
-                                // 以键值对的形式返回，可用的api值true，不可用为false
-                                // 如：{"checkResult":{"chooseImage":true},"errMsg":"checkJsApi:ok"}
-                                }
-                            });
-
-                            var isRecording=false;
-                            $('h1').on('tap',function(){
-                                if(!isRecording){
-
-                                   isRecording=true;
-                                    wx.startRecord({
-                                        cancel:function(){
-                                            window.alert("那就不能搜索了喔！");
-                                        }
-                                    });
-
-                                    return ;
-                                }
-
-                                 isRecording=false;
-                                wx.stopRecord({
-                                    success: function (res) {
-                                        var localId = res.localId;
-
-                                        wx.translateVoice({
-                                            localId: localId, // 需要识别的音频的本地Id，由录音相关接口获得
-                                            isShowProgressTips: 1, // 默认为1，显示进度提示
-                                            success: function (res) {
-                                                alert(res.translateResult); // 语音识别的结果
-                                            }
-                                        });
-                                    }
-                                });
-
-                            })
-                        });
-
-                </script>
-        </body>
- </html>
-*/});
+// var tpl= heredoc(function () {/*
+//  <!DOCTYPE html>
+//  <html>
+//         <head lang="zh-cn">
+//                 <title>猜电影</title>
+//                 <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1">
+//
+//         </head>
+//         <body>
+//                 <h1>点击标题开始录音翻译</h1>
+//
+//                 <p id="title"></p>
+//                 <div id="poster"></div>
+//
+//                 <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+//                 <script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+//                 <script>
+//                         wx.config({
+//                             debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+//                             appId: 'wxd46b7a729709996a', // 必填，公众号的唯一标识
+//                             timestamp: '<%= timestamp %>', // 必填，生成签名的时间戳
+//                             nonceStr: '<%= noncestr %>', // 必填，生成签名的随机串
+//                             signature:  '<%= signature %>',// 必填，签名
+//                             jsApiList: [
+//                                 'startRecord',
+//                                 'stopRecord',
+//                                 'onVoiceRecordEnd',
+//                                 'translateVoice'
+//                             ] // 必填，需要使用的JS接口列表
+//                         });
+//
+//
+//                         wx.ready(function(){
+//                             // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+//                             wx.checkJsApi({
+//                                 jsApiList: ['chooseImage'], // 需要检测的JS接口列表，所有JS接口列表见附录2,
+//                                 success: function(res) {
+//                                 console.log(res);
+//                                 // 以键值对的形式返回，可用的api值true，不可用为false
+//                                 // 如：{"checkResult":{"chooseImage":true},"errMsg":"checkJsApi:ok"}
+//                                 }
+//                             });
+//
+//                             var isRecording=false;
+//                             $('h1').on('tap',function(){
+//                                 if(!isRecording){
+//
+//                                    isRecording=true;
+//                                     wx.startRecord({
+//                                         cancel:function(){
+//                                             window.alert("那就不能搜索了喔！");
+//                                         }
+//                                     });
+//
+//                                     return ;
+//                                 }
+//
+//                                  isRecording=false;
+//                                 wx.stopRecord({
+//                                     success: function (res) {
+//                                         var localId = res.localId;
+//
+//                                         wx.translateVoice({
+//                                             localId: localId, // 需要识别的音频的本地Id，由录音相关接口获得
+//                                             isShowProgressTips: 1, // 默认为1，显示进度提示
+//                                             success: function (res) {
+//                                                 alert(res.translateResult); // 语音识别的结果
+//                                             }
+//                                         });
+//                                     }
+//                                 });
+//
+//                             })
+//                         });
+//
+//                 </script>
+//         </body>
+//  </html>
+// */});
 
 
 
@@ -138,6 +139,13 @@ var tpl= heredoc(function () {/*
         // 使得上传的文件可以被访问到
         app.use(serve(resolve(__dirname, '../public')));
 
+        // 植入两个中间件，做前置的微信环境检查、跳转、回调的用户数据存储和状态同步
+        const wechatController = require('./app/controllers/wechat');
+
+        app.use(wechatController.checkWechat);
+        app.use(wechatController.wechatRedirect);
+
+
         //用户信息更新后传递到pug模版上进行渲染
         app.use(async (ctx, next) => {
             const User = mongoose.model('User');
@@ -172,6 +180,7 @@ var tpl= heredoc(function () {/*
         require('./config/routes')(router);
         //使得路由上的中间件生效
         app.use(router.routes()).use(router.allowedMethods());
+
         //app.use(weChat(config.wechat,reply));
 
         //测试浏览器访问

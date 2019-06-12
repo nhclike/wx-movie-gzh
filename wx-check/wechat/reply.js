@@ -1,6 +1,10 @@
 const { resolve } = require('path');
+const {commonMenu,movieMenu}=require("./menu");
+
 const config = require('../config/config');
-const commonMenu=require("./menu");
+const api = require('../app/api/index');
+
+
 const help = '亲爱的，欢迎关注\n' +
     '回复 1-3，测试文字回复\n' +
     '回复 4，测试图文消息回复\n' +
@@ -11,7 +15,8 @@ const help = '亲爱的，欢迎关注\n' +
     '回复 15，测试永久二维码生成\n'+
     '回复 16，测试长链接转短链接\n'+
     '回复 17，测试智能语义转换服务\n'+
-    '回复 18，测试智能翻译服务\n';
+    '回复 18，测试智能翻译服务\n'+
+    '回复 更新菜单，更新成与电影有关的菜单\n';
 
 //回复策略
 exports.reply=async (ctx,next)=>{
@@ -19,10 +24,12 @@ exports.reply=async (ctx,next)=>{
 
     let { getWechat } = require('./index');
     let client = getWechat();
+    let reply='hello!';
+
     //文本回复
     if(message.MsgType==='text'){
         let content=message.Content;
-        let reply='Oh,你说的'+content+'太复杂了，无法解析';
+        reply='Oh,你说的'+content+'太复杂了，无法解析';
         if(content==='1'){
             reply='天下第一吃大米';
         }
@@ -307,6 +314,25 @@ exports.reply=async (ctx,next)=>{
 
             reply = JSON.stringify(aiData)
         }
+        //更新菜单
+        else if (content === '更新菜单') {
+            try {
+                await client.handle('deleteMenu');
+                await client.handle('createMenu', movieMenu)
+            } catch (e) {
+                console.log(e)
+            }
+
+            reply = '菜单创建成功，请等 5 分钟，或者先取消关注，再重新关注就可以看到新菜单'
+        }
+        else if (content === '首页') {
+            reply = [{
+                title: '时光的预热',
+                description: '匆匆岁月时光去，总有一款你最爱',
+                picUrl: 'https://imoocday7.oss-cn-beijing.aliyuncs.com/WX20180701-224844.png',
+                url: config.baseUrl
+            }]
+        }
         else {
             reply='谢谢您的关注！'
         }
@@ -330,11 +356,68 @@ exports.reply=async (ctx,next)=>{
         }
         //点击菜单
         else if(message.Event==='CLICK'){
-            reply='您点击了菜单'+message.EventKey;
+
+            if (message.EventKey === 'help') {
+                reply = help
+            } else if (message.EventKey === 'movie_hot') {
+                let movies = await api.movie.findHotMovies(-1, 4);
+                reply = [];
+
+                movies.forEach(movie => {
+                    reply.push({
+                        title: movie.title,
+                        description: movie.summary,
+                        picUrl: movie.poster.indexOf('http') > -1 ? movie.poster : (config.baseUrl + 'upload/' + movie.poster),
+                        url: config.baseUrl + '/movie/' + movie._id
+                    })
+                })
+            } else if (message.EventKey === 'movie_cold') {
+                let movies = await api.movie.findHotMovies(1, 4);
+                reply = [];
+
+                movies.forEach(movie => {
+                    reply.push({
+                        title: movie.title,
+                        description: movie.summary,
+                        picUrl: movie.poster.indexOf('http') > -1 ? movie.poster : (config.baseUrl + 'upload/' + movie.poster),
+                        url: config.baseUrl + 'movie/' + movie._id
+                    })
+                })
+            } else if (message.EventKey === 'movie_sci') {
+                let catData = await api.movie.findMoviesByCat('科幻');
+                let movies = catData.movies || [];
+                reply = [];
+
+                movies = movies.slice(0, 6);
+                movies.forEach(movie => {
+                    reply.push({
+                        title: movie.title,
+                        description: movie.summary,
+                        picUrl: movie.poster.indexOf('http') > -1 ? movie.poster : (config.baseUrl + 'upload/' + movie.poster),
+                        url: config.baseUrl + 'movie/' + movie._id
+                    })
+                })
+            } else if (message.EventKey === 'movie_love') {
+                let catData = await api.movie.findMoviesByCat('爱情');
+                let movies = catData.movies || [];
+                reply = [];
+
+                movies.forEach(movie => {
+                    reply.push({
+                        title: movie.title,
+                        description: movie.summary,
+                        picUrl: movie.poster.indexOf('http') > -1 ? movie.poster : (config.baseUrl + 'upload/' + movie.poster),
+                        url: config.baseUrl + 'movie/' + movie._id
+                    })
+                })
+            }
+            console.log('你点击了菜单的： ' + message.EventKey)
+
+
         }
         //扫描
         else if (message.Event === 'SCAN') {
-            console.log('关注后扫二维码' + '！ 扫码参数' + message.EventKey + '_' + message.ticket)
+            console.log('关注后扫二维码' + '！ 扫码参数' + message.EventKey + '_' + message.ticket);
             reply='您扫了一下喔！'
         }
         //点击菜单跳转
