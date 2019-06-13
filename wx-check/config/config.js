@@ -7,5 +7,6 @@ module.exports={
     },
     db:'mongodb://localhost/wechat7day',
     // 这里是你的代理地址
-    baseUrl: 'http://nhclike.free.idcfengye.com/'
+    baseUrl: 'http://nhclike.free.idcfengye.com/',
+    doubanUrl:'https://douban.uieee.com'
 }

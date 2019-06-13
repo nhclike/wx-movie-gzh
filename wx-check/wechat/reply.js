@@ -24,12 +24,12 @@ exports.reply=async (ctx,next)=>{
 
     let { getWechat } = require('./index');
     let client = getWechat();
-    let reply='hello!';
+    let content=message.Content;
+
+    let reply='Oh,你说的'+content+'太复杂了，无法解析';
 
     //文本回复
     if(message.MsgType==='text'){
-        let content=message.Content;
-        reply='Oh,你说的'+content+'太复杂了，无法解析';
         if(content==='1'){
             reply='天下第一吃大米';
         }
@@ -334,7 +334,40 @@ exports.reply=async (ctx,next)=>{
             }]
         }
         else {
-            reply='谢谢您的关注！'
+            //如果用户输入的信息与前面都不匹配
+            //导数据库模糊匹配电影
+            let movies = await api.movie.searchByKeyword(content);
+            reply = [];
+
+            //没有匹配到的话
+            if (!movies || movies.length === 0) {
+                //查找分类
+                let catData = await api.movie.findMoviesByCat(content);
+
+                if (catData) {
+                    movies = catData.movies
+                }
+            }
+            //没有匹配到分类也没有匹配到电影就到豆瓣上去匹配---豆瓣模糊查询
+            if (!movies || movies.length === 0) {
+                movies = await api.movie.searchByDouban(content)
+            }
+
+            if (movies && movies.length) {
+                movies = movies.slice(0, 4);
+                console.log("reply中豆瓣匹配到的电影数据");
+                console.log(movies);
+                movies.forEach(movie => {
+                    reply.push({
+                        title: movie.title,
+                        description: movie.summary?movie.summary:'暂且没有获取到描述',
+                        picUrl: movie.poster.indexOf('http') > -1 ? movie.poster : (config.baseUrl + '/upload/' + movie.poster),
+                        url: config.baseUrl + 'movie/' + movie._id
+                    })
+                })
+            } else {
+                reply = '没有查询到与 ' + content + ' 相关的电影，要不要换一个名字试试看哦！'
+            }
         }
         ctx.body=reply
     }
@@ -368,7 +401,7 @@ exports.reply=async (ctx,next)=>{
                         title: movie.title,
                         description: movie.summary,
                         picUrl: movie.poster.indexOf('http') > -1 ? movie.poster : (config.baseUrl + 'upload/' + movie.poster),
-                        url: config.baseUrl + '/movie/' + movie._id
+                        url: config.baseUrl + 'movie/' + movie._id
                     })
                 })
             } else if (message.EventKey === 'movie_cold') {
