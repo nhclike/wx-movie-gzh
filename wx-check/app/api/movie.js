@@ -78,7 +78,7 @@ exports.searchByDouban = async (q) => {
 
     if (subjects.length) {
         //将豆瓣查询结果格式化存入数据库
-        await Promise.all(subjects.map(async item => {
+        await Promise.all (subjects.map(async item => {
             //根据豆瓣id在数据库中查询
             let movie = await Movie.findOne({
                 doubanId: item.id
