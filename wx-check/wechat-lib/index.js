@@ -22,6 +22,16 @@ const api={
         count: base + 'material/get_materialcount?', //获取素材总数
         batch: base + 'material/batchget_material?'
     },
+    tag: {
+        create: base + 'tags/create?',
+        fetch: base + 'tags/get?',
+        update: base + 'tags/update?',
+        del: base + 'tags/delete?',
+        fetchUsers: base + 'user/tag/get?',
+        batchTag: base + 'tags/members/batchtagging?',
+        batchUnTag: base + 'tags/members/batchuntagging?',
+        getUserTags: base + 'tags/getidlist?'
+    },
     user: {
         fetch: base + 'user/get?',                //获取用户列表
         remark: base + 'user/info/updateremark?', //重命名（需要在认证的服务号上使用）
@@ -258,6 +268,89 @@ module.exports=class Wechat{
         const url = `${api.permanent.batch}access_token=${token}`;
 
         return { method: 'POST', url, body: options }
+    }
+
+    // 创建标签
+    createTag (token, name) {
+        const body = {
+            tag: {
+                name
+            }
+        }
+
+        const url = api.tag.create + 'access_token=' + token;
+
+        return { method: 'POST', url, body }
+    }
+
+    // 获取全部的标签
+    fetchTags (token) {
+        const url = api.tag.fetch + 'access_token=' + token;
+
+        return { url }
+    }
+
+    // 编辑标签
+    updateTag (token, id, name) {
+        const body = {
+            tag: {
+                id,
+                name
+            }
+        };
+
+        const url = api.tag.update + 'access_token=' + token;
+
+        return { method: 'POST', url, body }
+    }
+
+    // 删除标签
+    delTag (token, id) {
+        const body = {
+            tag: {
+                id
+            }
+        }
+
+        const url = api.tag.del + 'access_token=' + token;
+
+        return { method: 'POST', url, body }
+    }
+
+    // 获取标签下的粉丝列表
+    fetchTagUsers (token, id, openId) {
+        const body = {
+            tagid: id,
+            next_openid: openId || ''
+        }
+
+        const url = api.tag.fetchUsers + 'access_token=' + token;
+
+        return { method: 'POST', url, body }
+    }
+
+    // 批量加标签和取消标签
+    batchTag (token, openidList, id, unTag) {
+        const body = {
+            openid_list: openidList,
+            tagid: id
+        }
+
+        let url = !unTag ? api.tag.batchTag : api.tag.batchUnTag;
+        url += 'access_token=' + token;
+
+        return { method: 'POST', url, body }
+    }
+
+    //获取用户标签
+    getUserTags (token, openId) {
+        const body = {
+            openid: openId
+        }
+
+        const url = api.tag.getUserTags + 'access_token=' + token;
+
+        return { method: 'POST', url, body }
     }
 
 

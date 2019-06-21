@@ -64,7 +64,7 @@
 11 pug模版渲染页面
 
 1 全局安装pug pug-cli
-  cnpm pug pug-cli -g
+  cnpm i pug pug-cli -g
 2 ideal安装pug插件 https://www.w3cschool.cn/intellij_idea_doc/jade.html
 3 设置pug watch自动监听编译   https://jingyan.baidu.com/article/c146541395a7a40bfcfc4cb6.html
 4 pug基本命令和用法  https://www.cnblogs.com/xiaohuochai/p/7222227.html

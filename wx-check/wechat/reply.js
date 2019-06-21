@@ -30,7 +30,29 @@ exports.reply=async (ctx,next)=>{
 
     //文本回复
     if(message.MsgType==='text'){
-        if(content==='1'){
+        if (content === 'imooc') {
+            const countData = await api.wechat.saveMPUser(message, 'imooc');
+            const user = countData.user;
+            const count = countData.count;
+            let nickname = user.nickname || '';
+
+            if (user.gender === '1') {
+                nickname = `小鲜肉 - ${nickname}`
+            } else if (user.gender === '2') {
+                nickname = `小姐姐 - ${nickname}`
+            }
+
+            let guess = '我猜不出你来自哪里，';
+
+            if (user.province || user.city) {
+                guess = `我猜你来自${user.province}省，${user.city}市，`
+            }
+
+            let end = `${guess}哈哈，这些信息只有你关注我才能从微信服务器拿到，别紧张，微笑！`;
+
+            reply = `哎呦喂！你是来自慕课的${nickname}，你有 ${count} 个来自慕课的小伙伴开始研究这个课程了，${end}`
+        }
+        else if(content==='1'){
             reply='天下第一吃大米';
         }
         else if(content==='2'){
@@ -306,7 +328,8 @@ exports.reply=async (ctx,next)=>{
             console.log(searchData);
 
             reply = JSON.stringify(searchData);
-        }else if (content === '18') { //测试ai翻译接口
+        }
+        else if (content === '18') { //测试ai翻译接口
             let body = '编程语言难学么';
             let aiData = await client.handle('aiTranslate', body, 'zh_CN', 'en_US');
 
@@ -353,7 +376,7 @@ exports.reply=async (ctx,next)=>{
                 movies = await api.movie.searchByDouban(content)
             }
 
-            if (movies && movies.length) {
+            if (!movies || movies.length) {
                 movies = movies.slice(0, 4);
                 console.log("reply中豆瓣匹配到的电影数据");
                 console.log(movies);
@@ -477,7 +500,48 @@ exports.reply=async (ctx,next)=>{
         }
         ctx.body=reply
     }
+    //语音回复
+    else if(message.MsgType==='voice'){
+        let content = message.Recognition;
+        console.log("语音回复内容");
+        console.log(content);
+        let reply = '';
+        let movies = await api.movie.searchByKeyword(content);
+        reply = [];
 
+        if (!movies || movies.length === 0) {
+            let catData = await api.movie.findMoviesByCat(content);
+
+            if (catData) {
+                movies = catData.movies
+            }
+        }
+
+        if (!movies || movies.length === 0) {
+            movies = await api.movie.searchByDouban(content)
+        }
+
+        if (!movies || movies.length) {
+            movies = movies.slice(0, 4);
+
+            movies.forEach(movie => {
+                reply.push({
+                    title: movie.title,
+                    description: movie.summary,
+                    picUrl: movie.poster.indexOf('http') > -1 ? movie.poster : (config.baseUrl + '/upload/' + movie.poster),
+                    url: config.baseUrl + '/movie/' + movie._id
+                })
+            })
+        } else {
+            reply = '没有查询到与 ' + content + ' 相关的电影，要不要换一个名字试试看哦！'
+        }
+
+        ctx.body = reply
+    }
+    //图片回复
+    else if (message.MsgType === 'image') {
+        console.log(message.PicUrl)
+    }
 
     await next();
 };

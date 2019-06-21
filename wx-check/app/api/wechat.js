@@ -68,3 +68,86 @@ exports.saveWechatUser = async (userData) => {
 
     return user
 };
+
+// 持久化用户
+// 对用户打标签和统计
+exports.saveMPUser = async (message, from = '') => {
+    let sceneId = message.EventKey;
+    let openid = message.FromUserName;
+    let count = 0;
+
+    if (sceneId && sceneId.indexOf('qrscene_') > -1) { //扫码
+        sceneId = sceneId.replace('qrscene_', '')
+    }
+
+    //看微信关注的人员信息在数据库里是否已经存在
+    let user = await User.findOne({
+        openid: openid
+    });
+
+    let mp = require('../../wechat/index');
+    let client = mp.getWechat();   //拿到微信对象
+    let userInfo = await client.handle('getUserInfo', openid); //微信拿到用户信息
+
+    if (sceneId === 'imooc') {
+        from = 'imooc'
+    }
+    //如果不存在就将此用户存入数据库
+    if (!user) {
+        let userData = {
+            from: from,
+            openid: [userInfo.openid],
+            unionid: userInfo.unionid,
+            nickname: userInfo.nickname,
+            email: (userInfo.unionid || userInfo.openid) + '@wx.com',
+            province: userInfo.province,
+            country: userInfo.country,
+            city: userInfo.city,
+            gender: userInfo.gender || userInfo.sex
+        };
+
+        console.log(userData);
+
+        user = new User(userData);
+        user = await user.save()
+    }
+
+    if (from === 'imooc') {
+        let tagid;
+
+        count = await User.count({
+            from: 'imooc'
+        });
+
+        try {
+            let tagsData = await client.handle('fetchTags');
+
+            tagsData = tagsData || {};
+            const tags = tagsData.tags || [];
+            const tag = tags.filter(tag => {
+                return tag.name === 'imooc'
+            });
+
+            if (tag && tag.length > 0) {
+                tagid = tag[0].id;
+                count = tag[0].count || 0
+            } else {
+                let res = await client.handle('createTag', 'imooc');
+
+                tagid = res.tag.id
+            }
+
+            //给用户打标签
+            if (tagid) {
+                await client.handle('batchTag', [openid], tagid)
+            }
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    return {
+        user,
+        count
+    }
+};
